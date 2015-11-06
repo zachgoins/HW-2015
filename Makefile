@@ -3,6 +3,7 @@ CXXFLAGS = -std=c++11
 
 SEARCH_TARGET = PA3
 
+LIB = min_tree.o min_heap.o
 
 all: $(SEARCH_TARGET) 
 

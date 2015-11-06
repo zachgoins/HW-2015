@@ -1,121 +1,13 @@
-#include <iostream>
-#include <cmath>
-#include <ctime>
-#include <algorithm>
 
-using namespace std;
-
-class Min_heap
-{
-
-private:
-
-public:
-	Min_heap(int num_elements);
-	~Min_heap();
-	void build_minheap();
-	void push(int element);
-	void min_heapify(int i);
-	void pop();
-	void print_heap();
-	int get_size(){ return size; };
-    int top(){ return heap_array[1]; };
-	bool empty();
-	int size;
-	int *heap_array;
-	int num_elm;
-};
-
-Min_heap::Min_heap(int num_elements)
-{
-	heap_array = new int[num_elements];
-	num_elm = num_elements;
-	size = 1;
-}
-
-Min_heap::~Min_heap(){
-    //delete heap_array;
-}
-
-void Min_heap::build_minheap()
-{
-
-    for(int i = size/2; i >= 1; --i)
-    {
-        min_heapify(i);
-    }
-}
-
-void Min_heap::min_heapify(int i)
-{
-    sort(heap_array, heap_array + size);
-    
-    
-    int j, temp;
-    temp = heap_array[i];
-    j = 2 * i;
-    while (j <= num_elm)
-    {
-        if (j < num_elm && heap_array[j] < heap_array[j+1])
-            j = j + 1;
-        if (temp < heap_array[j])
-            break;
-        else if (temp >= heap_array[j])
-        {
-            heap_array[j/2] = heap_array[j];
-            j = 2 * j;
-        }
-    }
-    heap_array[j/2] = temp;
-    print heap_array[i/2]
-    return;
-    
-}
-
-void Min_heap::push(int element){
-	heap_array[size] = element;
-	size++;
-}
-
-void Min_heap::pop()
-{
-    for(int i = 1; i <= size; i++)
-    {
-        heap_array[i] = heap_array[i+1];
-    }
-    size--;
-}
-
-void Min_heap::print_heap(){
-
-	cout<<"Min Heap\n";
-	for (int i = 1; i < size; i++)
-    {
-        cout << heap_array[i] << endl;
-    }
-
-}
-
-bool Min_heap::empty()
-{
-	if (size > 1)
-	{
-		return true;
-	}else{
-		return false;
-	}
-}
+#include "min_tree.cpp"
+#include "min_heap.cpp"
 
 int main(int argc, char** argv)
 {
 
     clock_t start;
     double duration;
-    start = clock();
-
-	
-
-	int num_elements, num_machine, x;
+	int num_elements, num_machine, x, schedule_time;
 
     /*
 
@@ -124,7 +16,9 @@ int main(int argc, char** argv)
     cout << "Enter number of machines\n";
     cin >> num_machine;
 
-    Min_heap min_heap(num_elements);
+    int priority_array[num_machine][num_elements];
+    Min_heap<int> min_heap(num_elements);
+    MinHBLT<int> leftist_tree;
 
     for (int i = 1; i <= num_elements; i++)
     {
@@ -132,51 +26,115 @@ int main(int argc, char** argv)
         cout << "Enter element " << (i) << endl;
         cin >> input;
         min_heap.push(input);
+        leftist_tree.Insert(input);
     }
     */
     
     num_elements = 7;
     num_machine = 3;
-    Min_heap min_heap(num_elements);
+    int priority_array[num_machine][num_elements];
+    Min_heap<int> min_heap(num_elements);
+    MinHBLT<int> leftist_tree;
+
+
+    min_heap.push(2);
     min_heap.push(3);
-    min_heap.push(10);
-    min_heap.push(1);
-    min_heap.push(11);
-    min_heap.push(13);
-    min_heap.push(17);
+    min_heap.push(5);
     min_heap.push(6);
-    
+    min_heap.push(7);
+    min_heap.push(10);
+    min_heap.push(14);
+    leftist_tree.Insert(2);
+    leftist_tree.Insert(3);
+    leftist_tree.Insert(5);
+    leftist_tree.Insert(6);
+    leftist_tree.Insert(7);
+    leftist_tree.Insert(10);
+    leftist_tree.Insert(14);
 
     min_heap.build_minheap();
-    min_heap.print_heap();
+    schedule_time = min_heap.top_t() + min_heap.top_b();
+    int leftover = num_elements % num_machine;
+
+    // -------------------------------------------------------------------------------
 
 
-
-    /*
-
-    int index = 1;
+    start = clock();
+    int index = 0;
+    int count = 0;
     while(min_heap.empty() != false)
     {
-        cout << "Machine " << index << ": ";
-        for (int i = 1; i <= num_machine; i++)
+        if (min_heap.empty() == false){ break; };
+        for (int i = 0; i < num_machine; i++)
         {
-            if (min_heap.empty() == false){ break; };
-            int temp = min_heap.top();
-            cout << temp << ", ";
-            min_heap.pop();
+            if (min_heap.empty() == false)
+            {
+                priority_array[i][index] = 0;
+            }else {
+                priority_array[i][index] = min_heap.top_t();
+                cout << min_heap.top_t();
+                min_heap.pop_t();
+                count++;
+            }
         }
-        cout << endl;
         index++;
     }
-    */
 
-
-
+    cout << "Min Heap Finishing Time: " << schedule_time << endl;
+    for (int i = 0; i < num_machine; i++)
+    {
+        cout << "Machine " << i + 1 << ": ";
+        for (int j = 0; j < index; j++)
+        {
+            if (priority_array[i][j] != 0)
+            {
+                cout << priority_array[i][j] << ", ";
+            }
+        }
+        cout << endl;
+    }
     
-
     duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
 
-    cout<<"Time Elapsed: "<< duration <<'\n';
+    cout<<"Time Elapsed: "<< duration << endl << endl;
+
+    // -------------------------------------------------------------------------------
+
+    start = clock();
+    index = 0;
+    while(leftist_tree.empty() != false)
+    {
+        if (leftist_tree.empty() == false){ break; };
+        for (int i = 0; i < num_machine; i++)
+        {
+            if (leftist_tree.empty() == false)
+            {
+                priority_array[i][index] = 0;
+            }else {
+                priority_array[i][index] = leftist_tree.top();
+                leftist_tree.pop();
+            }
+        }
+        index++;
+    }
+
+    cout << "Height Biased Leftist Tree Finishing Time: " << schedule_time << endl;
+    for (int i = 0; i < num_machine; i++)
+    {
+        cout << "Machine " << i + 1 << ": ";
+        for (int j = 0; j < index; j++)
+        {
+            if (priority_array[i][j] != 0)
+            {
+                cout << priority_array[i][j] << ", ";
+            }
+        }
+        cout << endl;
+    }
+    
+    duration = (clock() - start ) / (double) CLOCKS_PER_SEC;
+
+    cout<<"Time Elapsed: "<< duration << endl;
 
 }
 
