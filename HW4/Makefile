@@ -3,7 +3,7 @@ CXXFLAGS = -std=c++11
 
 SEARCH_TARGET = PA4
 
-LIB = prim.o
+LIB = prim.o kruskal.o sollin.o
 
 all: $(SEARCH_TARGET) 
 
