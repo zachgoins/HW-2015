@@ -6,6 +6,11 @@
 #define DATA_HELPERS_H_
 
 #include <stdio.h>
+#include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
 #include "data_helpers.h"
 // Function prototypes for union-find (These functions are defined
 // after sollinMST() )
@@ -32,6 +37,7 @@ public:
 template <class T>
 void Sollin<T>::sollinMST(struct Graph* graph)
 {
+    std::cout << "Prim's MST:" << std::endl;
     // Get data of given graph
     int V = graph->V, E = graph->E;
     Edge *edge = graph->edge;
@@ -97,11 +103,14 @@ void Sollin<T>::sollinMST(struct Graph* graph)
             {
                 int set1 = find(subsets, edge[cheapest[i]].src);
                 int set2 = find(subsets, edge[cheapest[i]].dest);
+
+                std::cout << "(" << set1 << ", " << set2 << ")" << std::endl;
  
                 if (set1 == set2)
                     continue;
                 MSTweight += edge[cheapest[i]].weight;
- 
+                std::cout << edge[cheapest[i]].weight << std::endl; 
+
                 // Do a union of set1 and set2 and decrease number
                 // of trees
                 Union(subsets, set1, set2);
@@ -110,7 +119,7 @@ void Sollin<T>::sollinMST(struct Graph* graph)
         }
     }
  
-    printf("Weight of MST is %d\n", MSTweight);
+    std::cout << "Weight of MST is " << MSTweight << std::endl << std::endl;
     return;
 }
  

@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "data_helpers.h"
+#include <iostream>
 
 
 
@@ -134,10 +135,14 @@ void Kruskal<T>::KruskalMST(struct Graph* graph)
     }
  
     // print the contents of result[] to display the built MST
-    printf("Following are the edges in the constructed MST\n");
-    for (i = 0; i < e; ++i)
-        printf("%d -- %d == %d\n", result[i].src, result[i].dest,
-                                                   result[i].weight);
+    int weight = 0;
+    std::cout << "Kruskal's MST" << std::endl;
+    for (i = 0; i < e; ++i){
+        std::cout << "(" << result[i].src << ", " << result[i].dest << ")" << std::endl;
+        weight += result[i].weight;
+    }
+
+    std::cout << "Total Weight: " << weight << std::endl << std::endl;
     return;
 }
 

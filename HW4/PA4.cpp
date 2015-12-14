@@ -1,6 +1,12 @@
 #include "kruskal.cpp"
 #include "prim.cpp" 
 #include "sollin.cpp"
+#include <string>
+#include <iostream>
+#include <sstream>      // std::istringstream
+#include <vector>
+#include <stdlib.h>     /* atoi */
+#include <assert.h>     /* assert */
 
 #ifndef DATA_HELPERS_H_
 #define DATA_HELPERS_H_
@@ -9,94 +15,126 @@
 
 #endif
 
+using namespace std;
+
 // driver program to test above function
 int main()
 {
+    int num_nodes;
+    int num_connections;
+    int start_node;
+    string temp_input;
+    vector<int> connection_input;
+
+    /*
+
+    // Edge Entry 
+
+    cout << "Enter number of Node and Edges(s): " << endl;
+    cin >> temp_input;
+
+    // Split input based on token
+    istringstream iss(temp_input);
+    string s;
+    vector<string> temp_array;
+    while ( getline( iss, s, '-') ) {
+    temp_array.push_back(s.c_str());
+    }
+
+    assert(temp_array.size() == 2);
+    
+    // Assign separated values to individual variables
+    stringstream str(temp_array.at(0)); 
+    str >> num_nodes;
+    stringstream str2(temp_array.at(1)); 
+    str2 >> num_connections;
+    temp_array.clear();
+
+    // Create variable to hold large data based on the last input
+    string* rows = new string[num_connections];
+    int graph[num_connections][num_connections];
+
+    // Large Data Entry
+
+    cout << "Enter Node A and Node B and Undirected Edge Weight(s): " << endl;
+
+    for (int i = 0; i < num_connections; i++)
+    {
+        cin >> temp_input;
+        rows[i] = temp_input;
+        temp_array.clear();
+    }
+
+    cout << "Enter the start node:" << endl;
+    cin >> start_node;
+
+    */
+
+    num_nodes = 4;
+    num_connections = 5;
+    string* rows = new string[num_connections];
+    rows[0] = "0-1-5";
+    rows[1] = "1-3-4";
+    rows[2] = "3-2-2";
+    rows[3] = "2-0-7";
+    rows[4] = "1-2-10";
+    start_node = 0;
 
     Kruskal <int>kruskal;
-    Prim <int>prim;
+    Prim <int>prim(num_nodes, num_connections);
     Sollin <int>sollin;
-   /* Let us create the following graph
-          2    3
-      (0)--(1)--(2)
-       |   / \   |
-      6| 8/   \5 |7
-       | /     \ |
-      (3)-------(4)
-            9          */
-   int graph[Vertex][Vertex] = {{0, 2, 0, 6, 0},
-                      {2, 0, 3, 8, 5},
-                      {0, 3, 0, 0, 7},
-                      {6, 8, 0, 0, 9},
-                      {0, 5, 7, 9, 0},
-                     };
- 
-    // Print the solution
-    prim.primMST(graph);
 
-    int Vert = 4;  // Number of vertices in kruskal_graph
-    int E = 5;  // Number of edges in kruskal_graph
-    struct Graph* kruskal_graph = kruskal.createGraph(Vert, E);
+    // Kruskal Area
+
+    
+
+    struct Graph* kruskal_graph = kruskal.createGraph(num_nodes, num_connections);
+    struct Graph* sollin_graph = sollin.createGraph(num_nodes, num_connections);
+    int graph[Vertex][Vertex];
  
-    // add edge 0-1
-    kruskal_graph->edge[0].src = 0;
-    kruskal_graph->edge[0].dest = 1;
-    kruskal_graph->edge[0].weight = 10;
- 
-    // add edge 0-2
-    kruskal_graph->edge[1].src = 0;
-    kruskal_graph->edge[1].dest = 2;
-    kruskal_graph->edge[1].weight = 6;
- 
-    // add edge 0-3
-    kruskal_graph->edge[2].src = 0;
-    kruskal_graph->edge[2].dest = 3;
-    kruskal_graph->edge[2].weight = 5;
- 
-    // add edge 1-3
-    kruskal_graph->edge[3].src = 1;
-    kruskal_graph->edge[3].dest = 3;
-    kruskal_graph->edge[3].weight = 15;
- 
-    // add edge 2-3
-    kruskal_graph->edge[4].src = 2;
-    kruskal_graph->edge[4].dest = 3;
-    kruskal_graph->edge[4].weight = 4;
+    for (int i = 0; i < num_connections; i++)
+    {
+        istringstream iss(rows[i]);
+        string s;
+        vector<string> temp_array;
+        while ( getline( iss, s, '-') ) {
+        temp_array.push_back(s.c_str());
+        }
+
+        stringstream k_src(temp_array.at(0)); 
+        stringstream s_src(temp_array.at(0)); 
+        stringstream src(temp_array.at(0));
+        
+        stringstream k_dest(temp_array.at(1)); 
+        stringstream s_dest(temp_array.at(1)); 
+        stringstream dest(temp_array.at(1)); 
+    
+        stringstream k_weight(temp_array.at(2)); 
+        stringstream s_weight(temp_array.at(2)); 
+        stringstream weight(temp_array.at(2)); 
+
+        int src_i, dest_i, weight_i;
+
+        src >> src_i;
+        dest >> dest_i;
+        weight >> weight_i;
+
+        k_src >> kruskal_graph->edge[i].src;
+        s_src >> sollin_graph->edge[i].src;
+        k_dest >> kruskal_graph->edge[i].dest;
+        s_dest >> sollin_graph->edge[i].dest;
+        k_weight >> kruskal_graph->edge[i].weight;
+        s_weight >> sollin_graph->edge[i].weight;
+
+        graph[src_i][dest_i] = weight_i;
+        graph[dest_i][src_i] = weight_i;
+
+        temp_array.clear();
+    }
  
     kruskal.KruskalMST(kruskal_graph);
-
-
-    Vert = 4;  // Number of vertices in graph
-    E = 5;  // Number of edges in graph
-    struct Graph* sollin_graph = sollin.createGraph(Vert, E);
- 
- 
-    // add edge 0-1
-    sollin_graph->edge[0].src = 0;
-    sollin_graph->edge[0].dest = 1;
-    sollin_graph->edge[0].weight = 10;
- 
-    // add edge 0-2
-    sollin_graph->edge[1].src = 0;
-    sollin_graph->edge[1].dest = 2;
-    sollin_graph->edge[1].weight = 6;
- 
-    // add edge 0-3
-    sollin_graph->edge[2].src = 0;
-    sollin_graph->edge[2].dest = 3;
-    sollin_graph->edge[2].weight = 5;
- 
-    // add edge 1-3
-    sollin_graph->edge[3].src = 1;
-    sollin_graph->edge[3].dest = 3;
-    sollin_graph->edge[3].weight = 15;
- 
-    // add edge 2-3
-    sollin_graph->edge[4].src = 2;
-    sollin_graph->edge[4].dest = 3;
-    sollin_graph->edge[4].weight = 4;
- 
     sollin.sollinMST(sollin_graph);
- 
+    prim.primMST(graph);
+
     return 0;
 }

@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <limits.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <iostream>
  
 // Number of vertices in the graph
-#define Vertex 5
+#define Vertex 4
 
 template <class T>
 class Prim
@@ -12,12 +16,23 @@ private:
 
 public:
   int minKey(int key[], bool mstSet[]);
+  Prim(int nodes, int connections);
   int printMST(int parent[], int n, int graph[Vertex][Vertex]);
   void primMST(int graph[Vertex][Vertex]);
+  int num_nodes;
+  int num_connections;
 };
 
 // A utility function to find the vertex with minimum key value, from
 // the set of vertices not yet included in MST
+
+
+template <class T>
+Prim<T>::Prim(int nodes, int connections){
+  num_nodes = nodes;
+  num_connections = connections;
+}
+
 template <class T>
 int Prim<T>::minKey(int key[], bool mstSet[])
 {
@@ -35,9 +50,16 @@ int Prim<T>::minKey(int key[], bool mstSet[])
 template <class T>
 int Prim<T>::printMST(int parent[], int n, int graph[Vertex][Vertex])
 {
-   printf("Edge   Weight\n");
-   for (int i = 1; i < Vertex; i++)
-      printf("%d - %d    %d \n", parent[i], i, graph[i][parent[i]]);
+   std::cout << "Prim's MST:" << std::endl;
+   int weight = 0;
+   for (int i = 1; i < Vertex; i++){
+      std::cout << "(" << parent[i] << ", " << i << ")" << std::endl;
+      weight += graph[i][parent[i]];
+    }
+
+    std::cout << "Total Weight:" << weight << std::endl << std::endl;
+
+
 }
  
 // Function to construct and print MST for a graph represented using adjacency
