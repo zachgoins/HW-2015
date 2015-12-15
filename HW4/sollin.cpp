@@ -1,175 +1,109 @@
-// sollin's algorithm to find Minimum Spanning
-// Tree of a given connected, undirected and
-// weighted graph
-
-#ifndef DATA_HELPERS_H_
-#define DATA_HELPERS_H_
-
 #include <stdio.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <iostream>
-#include "data_helpers.h"
-// Function prototypes for union-find (These functions are defined
-// after sollinMST() )
 
-#endif
 
 template <class T>
-class Sollin {
+class Sollin
+{
 
 private:
 
 public:
-    int find(struct subset subsets[], int i);
-    void Union(struct subset subsets[], int x, int y);
-    void sollinMST(struct Graph* graph);
-    struct Graph* createGraph(int V, int E);
+  int minKey(int key[], bool mstSet[]);
+  Sollin(int nodes, int connections);
+  int printMST(int parent[], int n, int (**graph));
+  void sollinMST(int (**graph), int des_start);
+  int num_nodes;
+  int num_connections;
+  int des_start;
 
 };
 
-
-
- 
-// The main function for MST using sollin's algorithm
+// Constructor
 template <class T>
-void Sollin<T>::sollinMST(struct Graph* graph)
+Sollin<T>::Sollin(int nodes, int connections){
+  num_nodes = nodes;
+  num_connections = connections;
+}
+
+// Finds the key with the min index
+template <class T>
+int Sollin<T>::minKey(int key[], bool mstSet[])
 {
-    std::cout << "Prim's MST:" << std::endl;
-    // Get data of given graph
-    int V = graph->V, E = graph->E;
-    Edge *edge = graph->edge;
+   // Initialize min value
+   int min = INT_MAX, min_index;
  
-    // Allocate memory for creating V subsets.
-    struct subset *subsets = new subset[V];
+   for (int v = 0; v < num_nodes; v++)
+     if (mstSet[v] == false && key[v] < min)
+         min = key[v], min_index = v;
  
-    // An array to store index of the cheapest edge of
-    // subset.  The stored index for indexing array 'edge[]'
-    int *cheapest = new int[V];
+   return min_index;
+}
  
-    // Create V subsets with single elements
-    for (int v = 0; v < V; ++v)
-    {
-        subsets[v].parent = v;
-        subsets[v].rank = 0;
-        cheapest[v] = -1;
+// A utility function to print the constructed MST stored in parent[]
+template <class T>
+int Sollin<T>::printMST(int parent[], int n, int (**graph))
+{
+   std::cout << "Boruvka's/Sollin's MST:" << std::endl;
+   int weight = 0;
+   for (int i = 1; i < num_nodes; i++){
+      std::cout << "(" << parent[i] << ", " << i << ")" << std::endl;
+      weight += graph[i][parent[i]];
     }
+
+    std::cout << "Total Weight:" << weight << std::endl << std::endl;
+
+
+}
  
-    // Initially there are V different trees.
-    // Finally there will be one tree that will be MST
-    int numTrees = V;
-    int MSTweight = 0;
+
+// Solve for Sollin's MST
+template <class T>
+void Sollin<T>::sollinMST(int (**graph), int des_start)
+{
+     int parent[num_nodes]; // Array to store constructed MST
+     int key[num_nodes];   // Key values used to pick minimum weight edge in cut
+     bool mstSet[num_nodes];  // To represent set of vertices not yet included in MST
  
-    // Keep combining components (or sets) until all
-    // compnentes are not combined into single MST.
-    while (numTrees > 1)
-    {
-        // Traverse through all edges and update
-        // cheapest of every component
-        for (int i=0; i<E; i++)
+     // Initialize all keys as INFINITE
+     for (int i = 0; i < num_nodes; i++)
+        key[i] = INT_MAX, mstSet[i] = false;
+ 
+     // Always include first 1st num_nodes in MST.
+     key[0] = des_start;     // Make key 0 so that this num_nodes is picked as first num_nodes
+     parent[0] = -1; // First node is always root of MST 
+ 
+     // The MST will have V vertices
+     for (int count = 0; count < num_nodes-1; count++)
+     {
+        // Pick thd minimum key num_nodes from the set of vertices
+        // not yet included in MST
+        int u = minKey(key, mstSet);
+ 
+        // Add the picked num_nodes to the MST Set
+        mstSet[u] = true;
+ 
+        // Update key value and parent index of the adjacent vertices of
+        // the picked nodes. Consider only those vertices which are not yet
+        // included in MST
+        for (int v = 0; v < num_nodes; v++)
         {
-            // Find components (or sets) of two corners
-            // of current edge
-            int set1 = find(subsets, edge[i].src);
-            int set2 = find(subsets, edge[i].dest);
- 
-            // If two corners of current edge belong to
-            // same set, ignore current edge
-            if (set1 == set2)
-                continue;
- 
-            // Else check if current edge is closer to previous
-            // cheapest edges of set1 and set2
-            else
-            {
-               if (cheapest[set1] == -1 ||
-                   edge[cheapest[set1]].weight > edge[i].weight)
-                 cheapest[set1] = i;
- 
-               if (cheapest[set1] == -1 ||
-                   edge[cheapest[set2]].weight > edge[i].weight)
-                 cheapest[set2] = i;
-            }
+           // Update the key only if graph[u][v] is smaller than key[v]
+          if (graph[u][v] && mstSet[v] == false && graph[u][v] <  key[v])
+          {
+            parent[v]  = u, key[v] = graph[u][v];
+          }
+
         }
+              
+     }
  
-        // Consider the above picked cheapest edges and add them
-        // to MST
-        for (int i=0; i<V; i++)
-        {
-            // Check if cheapest for current set exists
-            if (cheapest[i] != -1)
-            {
-                int set1 = find(subsets, edge[cheapest[i]].src);
-                int set2 = find(subsets, edge[cheapest[i]].dest);
-
-                std::cout << "(" << set1 << ", " << set2 << ")" << std::endl;
- 
-                if (set1 == set2)
-                    continue;
-                MSTweight += edge[cheapest[i]].weight;
-                std::cout << edge[cheapest[i]].weight << std::endl; 
-
-                // Do a union of set1 and set2 and decrease number
-                // of trees
-                Union(subsets, set1, set2);
-                numTrees--;
-            }
-        }
-    }
- 
-    std::cout << "Weight of MST is " << MSTweight << std::endl << std::endl;
-    return;
+     // print the constructed MST
+     printMST(parent, num_nodes, graph);
 }
  
-// Creates a graph with V vertices and E edges
-template <class T>
-struct Graph* Sollin<T>::createGraph(int V, int E)
-{
-    Graph* graph = new Graph;
-    graph->V = V;
-    graph->E = E;
-    graph->edge = new Edge[E];
-    return graph;
-}
  
-// A utility function to find set of an element i
-// (uses path compression technique)
-template <class T>
-int Sollin<T>::find(struct subset subsets[], int i)
-{
-    // find root and make root as parent of i
-    // (path compression)
-    if (subsets[i].parent != i)
-      subsets[i].parent =
-             find(subsets, subsets[i].parent);
- 
-    return subsets[i].parent;
-}
- 
-// A function that does union of two sets of x and y
-// (uses union by rank)
-template <class T>
-void Sollin<T>::Union(struct subset subsets[], int x, int y)
-{
-    int xroot = find(subsets, x);
-    int yroot = find(subsets, y);
- 
-    // Attach smaller rank tree under root of high
-    // rank tree (Union by Rank)
-    if (subsets[xroot].rank < subsets[yroot].rank)
-        subsets[xroot].parent = yroot;
-    else if (subsets[xroot].rank > subsets[yroot].rank)
-        subsets[yroot].parent = xroot;
- 
-    // If ranks are same, then make one as root and
-    // increment its rank by one
-    else
-    {
-        subsets[yroot].parent = xroot;
-        subsets[xroot].rank++;
-    }
-}
- 
-
